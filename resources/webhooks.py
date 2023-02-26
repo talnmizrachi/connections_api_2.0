@@ -44,7 +44,6 @@ class WebHookCatcher(MethodView):
         request_data = parse_webhook(data_)
         logger.debug(request_data)
 
-
         return parse_webhook(data_)
 
 
