@@ -25,6 +25,15 @@ it's ok."""
 	return txt
 
 
+def send_msg_to_sxm(client, student, company, poc_name):
+	managers = {"tal": 'C04MA139GLA',
+	            "anisa_": "U049VQ962ER",
+	            "ori_": "U030GUZ79NX"
+	            }
+	for manager, slack_id in managers.items():
+		text = f"<@{student}> sent their resumes to <@{poc_name}> that knows someone at {company} on {datetime.now().strftime('%Y-%m-%d %H:%M')}"
+		client.chat_postMessage(text=text, channel=slack_id)
+
 def interim_slack_handler(file_id, user_id, file_token):
 	client = WebClient(token=os.getenv('SLACK_OAUTH_TOKEN'))
 	file_data = client.files_info(file=file_id).data['file']
@@ -74,6 +83,8 @@ def interim_slack_handler(file_id, user_id, file_token):
 
 	client.chat_postMessage(channel=poc_slack_id,
 	                        text=create_text_for_poc(company, connection_name, job_title, file_link))
+
+	send_msg_to_sxm(client, user_id, company, poc_name)
 
 	new_communications = CommunicationsModel(hook_id=hook_id, thread_ts=thread_ts, event="MSG_TO_POC",
 	                                         message_type="ASTRID_FORWARDED_TO_POC", company=company,
