@@ -1,4 +1,14 @@
-flask
+flask~=2.2.3
 flask-smorest
 python-dotenv
-bs4
+bs4~=0.0.1
+sqlalchemy~=2.0.4
+flask-sqlalchemy
+psycopg2
+slack-sdk
+pandas
+beautifulsoup4~=4.11.2
+marshmallow~=3.19.0
+requests
+flask-migrate
+gunicorn
