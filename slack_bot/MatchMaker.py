@@ -139,7 +139,7 @@ class MatchMaker:
 			slack_id = self.poc_to_slack_id_mapping.get(poc)
 			if slack_id is None:
 				logger.error(f"Could not find slack_id for poc: {poc}")
-				self.slack_client.chat_postMessage(channel='U02SC4T1EBF', #C04SG7ZQNS0
+				self.slack_client.chat_postMessage(channel='U02SC4T1EBF',  # C04SG7ZQNS0
 				                                   text=f"Could not find slack_id for poc: {poc}")
 				continue
 			temp_blocks = slack_poc_template(poc,
@@ -225,7 +225,7 @@ class MatchMaker:
 			self.student_main_thread = resp.get('ts')
 			self.communications_table_committer(self.student_main_thread, "MSG_TO_STUDENT", message_type)
 
-		if message_type in ("HAVE_CONNECTIONS"):
+		if message_type in ("HAVE_CONNECTIONS", ):
 			self.student_thread_ts_getter()
 			logger.critical(self.student_thread_ts)
 			self.slack_client.chat_postMessage(text=self.student_msg,
@@ -234,6 +234,11 @@ class MatchMaker:
 			self.communications_table_committer(self.student_main_thread, "MSG_TO_STUDENT", message_type,
 			                                    poc_name=args[0],
 			                                    poc_slack_id=args[1])
+
+		if message_type in ("PASS", ):
+			self.student_thread_ts_getter()
+			logger.critical("Connection was passed - not proceeding")
+
 		return self.student_msg
 
 	def student_thread_ts_getter(self):

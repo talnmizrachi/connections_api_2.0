@@ -109,7 +109,6 @@ class Connection(MethodView):
 		                                          poc_slack_id=payload_dict['slack_id'],
 		                                          approved_conn=payload_dict['connection_name'])
 		# Let student know that they should send a resume to the poc
-		msg_type = "HAVE_CONNECTIONS"
 		matchmaker.define_and_send_slack_msg_for_student(msg_type, payload_dict['poc_name'], payload_dict['slack_id'])
 
 
