@@ -139,7 +139,7 @@ class MatchMaker:
 			slack_id = self.poc_to_slack_id_mapping.get(poc)
 			if slack_id is None:
 				logger.error(f"Could not find slack_id for poc: {poc}")
-				self.slack_client.chat_postMessage(channel='U02SC4T1EBF',
+				self.slack_client.chat_postMessage(channel='U02SC4T1EBF', #C04SG7ZQNS0
 				                                   text=f"Could not find slack_id for poc: {poc}")
 				continue
 			temp_blocks = slack_poc_template(poc,
