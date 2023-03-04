@@ -74,7 +74,7 @@ def change_response_to_poc(payload_json, payload_dict):
 		text = f":white_check_mark: Thanks for letting us know that {payload_dict['connection_name']} and you aren't really connected!"
 
 	message = {
-		"replace_original": True,
+		"replace_original": False,
 		"text": text
 	}
 
