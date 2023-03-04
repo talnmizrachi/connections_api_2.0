@@ -25,7 +25,7 @@ class POCSlackId(MethodView):
             logger.debug("Saving POC Slack ID")
             db.session.add(poc_slack_id)
             db.session.commit()
-            response = {"status": "success", "message": "POC Slack ID saved successfully", "data": poc_slack_id.to_dict()}
+            response = {"status": "success", "message": "POC Slack ID saved successfully", "data": data}
             return response, 201
         except SQLAlchemyError as e:
             logger.error(f"SQLAlchemyError - {e}")
