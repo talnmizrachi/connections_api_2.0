@@ -136,7 +136,12 @@ class MatchMaker:
 			        ].copy())
 			temp = temp.sample(min(3, len(temp)))
 			temp = temp.sort_index()
-			slack_id = self.poc_to_slack_id_mapping[poc]
+			slack_id = self.poc_to_slack_id_mapping.get(poc)
+			if slack_id is None:
+				logger.error(f"Could not find slack_id for poc: {poc}")
+				self.slack_client.chat_postMessage(channel='C04SG7ZQNS0',
+				                                   text=f"Could not find slack_id for poc: {poc}")
+				continue
 			temp_blocks = slack_poc_template(poc,
 			                                 self.company,
 			                                 temp['contact_name'].unique(),
