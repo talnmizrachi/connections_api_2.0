@@ -69,7 +69,7 @@ def change_response_to_poc(payload_json, payload_dict):
 		       f"We'll remind you that you know {payload_dict['connection_name']} from {payload_dict['company_name']}"
 
 	elif conn_status == '0':
-		text = f"It's all good! :)"
+		text = f"Your connection with {payload_dict['connection_name']} from {payload_dict['company_name']} will not be considered this round, maybe next time"
 	else:
 		text = f":white_check_mark: Thanks for letting us know that {payload_dict['connection_name']} and you aren't really connected!"
 
