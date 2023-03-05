@@ -1,5 +1,6 @@
 from flask import request
 from flask_smorest import Blueprint, abort
+from slack_sdk import WebClient
 from sqlalchemy import or_
 from sqlalchemy.exc import SQLAlchemyError
 from db import db
@@ -10,6 +11,23 @@ from models import StudentSlackIDsModel
 
 logger = Logger(os.path.basename(__file__).split('.')[0]).get_logger()
 blueprint = Blueprint("student_slack_ids", __name__, description="actions related to student slack ids")
+
+
+def send_welcoming_message(slack_id):
+    bulbs = ":bulb::bulb::bulb:"
+    opening = f"{bulbs}Sending resumes via connections can be important as it can increase the chances of your resume being " \
+              "noticed and lead to more opportunities as compared to submitting your application through " \
+              f"a traditional online application process - and that's why I'm here{bulbs}."
+
+    body = "Everytime you save a position to your *wishlist* on Huntr, I will check with all of our Masterschool " \
+           "network of connections and see if we can send your resumes via one of them." \
+           "If I'll find a connection that is willing to forward your resumes, I will contact you on the same thread " \
+           "that you got from me about that position." \
+           "While I'm looking for a connection that willing to forward your resumes, it's up to you to tailor your " \
+           "resume to fit the job description - if you have any questions, feel free to contact me on #astrid-questions-and-bugs channel." \
+
+    WebClient(token=os.environ.get("SLACK_OAUTH_TOKEN")).chat_postMessage(channel=slack_id, text=f"{opening}\n\n{body}")
+
 
 
 @blueprint.route("/student_slack_id/")
@@ -32,6 +50,7 @@ class StudentSlackId(MethodView):
             logger.info(f"Adding new student {student_slack_id}")
             db.session.add(student_slack_id)
             db.session.commit()
+            send_welcoming_message(slack_id)
         except SQLAlchemyError as e:
             db.session.rollback()
             logger.error(f"SQLAlchemyError - {e}")
