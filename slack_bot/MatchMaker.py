@@ -20,6 +20,7 @@ load_dotenv()
 class MatchMaker:
 
 	def __init__(self, hook_id, company, student_mail):
+		self.student_main_thread = None
 		self.student_thread_ts = None
 		self.poc_to_slack_id_mapping = None
 		self.hook_id = hook_id
@@ -104,8 +105,9 @@ class MatchMaker:
 
 		if possible_connections['poc_name'].nunique() > 3:
 			# randomize the number of pocs that are getting matched
-			self.possible_connection_for_a_match = random.choices(possible_connections['poc_name'].unique(), k=3)
+			self.possible_connection_for_a_match = random.sample(possible_connections['poc_name'].unique(), k=3)
 			logger.debug(f"connections picked randomly:{self.possible_connection_for_a_match}")
+			return None
 
 		self.possible_connection_for_a_match = possible_connections
 
@@ -119,7 +121,7 @@ class MatchMaker:
 		       .all()
 		       )
 		self.poc_to_slack_id_mapping = dict(var)
-		logger.debug(f"DONE")
+		logger.debug(f"self.poc_to_slack_id_mapping:\t{self.poc_to_slack_id_mapping}")
 
 	def send_msgs_to_pocs_to_check_if_connections_are_real(self, job_url, email, message_type):
 
@@ -172,6 +174,7 @@ class MatchMaker:
 		"""
 		if self.student_slack_id is None:
 			self.student_data_from_mail_setter()
+
 		if message_type == 'CHECKING_STATE_OF_CONNECTIONS':
 			# {"poc_name": {"poc_slack_id_key": "poc_slack_id_value", "blocks": []}}
 			self.send_msgs_to_pocs_to_check_if_connections_are_real(job_url=job_url, email=email,
@@ -219,7 +222,7 @@ class MatchMaker:
 		self.define_slack_msg_for_student(message_type)
 		logger.debug(f"self.student_slack_id: {self.student_slack_id}")
 		logger.debug(f"self.student_msg: {self.student_msg}")
-		if message_type in ("NO_CONNECTIONS", "CHECKING_CONNECTIONS_WITH_POCS"):
+		if message_type in ["NO_CONNECTIONS", "CHECKING_CONNECTIONS_WITH_POCS"]:
 			resp = self.slack_client.chat_postMessage(text=self.student_msg,
 			                                          channel=self.student_slack_id)
 			self.student_main_thread = resp.get('ts')
