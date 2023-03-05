@@ -1,12 +1,7 @@
-import email
-
 from flask import request
 from flask_smorest import Blueprint, abort
 import datetime
-import pandas as pd
 from sqlalchemy import func
-from sqlalchemy.exc import SQLAlchemyError
-from db import db
 from models import WebhooksModel, ConnectionModel, CommunicationsModel, StudentSlackIDsModel
 from resources.functions import parse_webhook, committing_function
 from flask.views import MethodView
@@ -115,9 +110,10 @@ class WebHookCatcher(MethodView):
 
 		logger.debug(f"connection_model:\t{type(connections[0])},{connections[0:5]}")
 
+		matchmaker.define_and_send_slack_msg_for_student(message_type='CHECKING_CONNECTIONS_WITH_POCS')
 		matchmaker.define_and_send_slack_msg_for_poc(job_url=job_url, email=email_,
 		                                             message_type="CHECKING_STATE_OF_CONNECTIONS")
-		matchmaker.define_and_send_slack_msg_for_student(message_type='CHECKING_CONNECTIONS_WITH_POCS')
+
 
 		return parse_webhook(data_)
 
