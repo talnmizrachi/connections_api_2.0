@@ -111,6 +111,9 @@ class Connection(MethodView):
 		# Let student know that they should send a resume to the poc
 		matchmaker.define_and_send_slack_msg_for_student(msg_type, payload_dict['poc_name'], payload_dict['slack_id'])
 
+		if payload_dict['conn_status'] == '-1':
+			matchmaker.connection_table_status_when_conn_is_rejected(payload_dict['connection_name'],
+			                                                         payload_dict['poc_name'])
 
 
 		# Left to do
