@@ -51,6 +51,7 @@ class StudentSlackId(MethodView):
             db.session.add(student_slack_id)
             db.session.commit()
             send_welcoming_message(slack_id)
+            return {"status": "success", "message": "Student added successfully"}, 201
         except SQLAlchemyError as e:
             db.session.rollback()
             logger.error(f"SQLAlchemyError - {e}")
