@@ -4,7 +4,7 @@ from datetime import datetime
 
 from flask import abort
 from sqlalchemy.exc import SQLAlchemyError
-from models import POCSlackIDsModel, CommunicationsModel, StudentSlackIDsModel
+from models import POCSlackIDsModel, CommunicationsModel, StudentSlackIDsModel, ConnectionModel
 from cross_functions.LoggingGenerator import Logger
 from slack_bot.slack_msg_templates import main as slack_poc_template
 from db import db
@@ -47,6 +47,30 @@ class MatchMaker:
 		self.student_msg = ""
 
 		logging.debug(f"Initializing MatchMaker with hook_id: {hook_id}, company: {company}")
+
+	def connection_table_status_when_conn_is_rejected(self, contact_name, poc_name):
+
+		connection = (ConnectionModel.
+		              query.
+		              filter_by(contact_name=contact_name,
+		                        poc_name=poc_name,
+		                        company_name=self.company)
+		              .first()
+		              )
+		connection.is_true_connection = False
+		connection.response_date = datetime.now()
+
+		try:
+			logger.debug(f"what_to_commit:\t{connection}")
+			db.session.add(connection)
+			db.session.commit()
+		except SQLAlchemyError as e:
+			db.session.rollback()
+			logger.error(f"SQLAlchemyError - {e}")
+			abort(500, str(e))
+
+
+
 
 	def communications_table_committer(self, thread_ts, event, message_type, cv_link = None,
 	                                   file_name = None, poc_name = None, poc_slack_id = None,
