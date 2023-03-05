@@ -1,7 +1,6 @@
 from flask import request
 from flask_smorest import Blueprint, abort
 from sqlalchemy.exc import SQLAlchemyError
-
 from db import db
 from models.poc_slack_ids import POCSlackIDsModel
 from flask.views import MethodView
