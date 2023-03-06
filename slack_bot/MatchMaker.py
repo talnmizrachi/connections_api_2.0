@@ -42,7 +42,7 @@ class MatchMaker:
 		self.poc_approved_name_of_connection = None
 		self.slack_file_token = None
 		self.connections = None
-		self.possible_connection_for_a_match = []
+		self.possible_connection_for_a_match = pd.DataFrame()
 		self.poc_slack_msgs_dict = {}
 		self.student_msg = ""
 
@@ -128,11 +128,12 @@ class MatchMaker:
 
 		if possible_connections['poc_name'].nunique() > 3:
 			# randomize the number of pocs that are getting matched
-			self.possible_connection_for_a_match = random.sample(list(possible_connections['poc_name'].unique()), k=3)
+			names = random.sample(list(possible_connections['poc_name'].unique()), k=3)
+			self.possible_connection_for_a_match = possible_connections[possible_connections['poc_name'].isin(names)].copy()
 			logger.debug(f"connections picked randomly:{self.possible_connection_for_a_match}")
 			return None
 
-		self.possible_connection_for_a_match = list(possible_connections['poc_name'].unique())
+		self.possible_connection_for_a_match = possible_connections
 
 	def create_poc_to_slack_id_mapping(self):
 		logger.debug(f"START")
@@ -140,7 +141,7 @@ class MatchMaker:
 		var = (POCSlackIDsModel
 		       .query
 		       .with_entities(POCSlackIDsModel.poc_name, POCSlackIDsModel.slack_id)
-		       .filter(POCSlackIDsModel.poc_name.in_(self.possible_connection_for_a_match))
+		       .filter(POCSlackIDsModel.poc_name.in_(self.possible_connection_for_a_match['poc_name'].unique()))
 		       .all()
 		       )
 		self.poc_to_slack_id_mapping = dict(var)
@@ -154,7 +155,7 @@ class MatchMaker:
 
 		pocs_dict = {}
 
-		for poc in self.possible_connection_for_a_match['poc_name'].unique():
+		for poc in set(self.possible_connection_for_a_match):
 			logger.debug(f"Building block for poc: {poc}")
 			temp = (self.possible_connection_for_a_match[
 				        (self.possible_connection_for_a_match['poc_name'] == poc)
@@ -216,7 +217,7 @@ class MatchMaker:
 
 		:return:
 		"""
-
+		logger.debug(f"{self.hook_id} - Building slack msg for student (message_type={message_type})")
 		if self.possible_connection_for_a_match is None:
 			self.possible_connection_for_a_match_setter()
 
