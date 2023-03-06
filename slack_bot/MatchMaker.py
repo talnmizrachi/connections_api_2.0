@@ -42,7 +42,7 @@ class MatchMaker:
 		self.poc_approved_name_of_connection = None
 		self.slack_file_token = None
 		self.connections = None
-		self.possible_connection_for_a_match = None
+		self.possible_connection_for_a_match = []
 		self.poc_slack_msgs_dict = {}
 		self.student_msg = ""
 
@@ -69,13 +69,10 @@ class MatchMaker:
 			logger.error(f"SQLAlchemyError - {e}")
 			abort(500, str(e))
 
-
-
-
 	def communications_table_committer(self, thread_ts, event, message_type, cv_link = None,
 	                                   file_name = None, poc_name = None, poc_slack_id = None,
 	                                   slack_file_token = None, approved_conn = None):
-
+		logger.debug(f"{self.hook_id} - Building Commit communications from MatchMaker")
 		if self.student_slack_id is None:
 			self.student_data_from_mail_setter()
 
@@ -98,7 +95,7 @@ class MatchMaker:
 
 		coms = CommunicationsModel(**columns)
 		try:
-			logger.debug(f"what_to_commit:\t{coms}")
+			logger.debug(f"{self.hook_id} - Committing communications table from MatchMaker")
 			db.session.add(coms)
 			db.session.commit()
 		except SQLAlchemyError as e:
@@ -107,13 +104,15 @@ class MatchMaker:
 			abort(500, str(e))
 
 	def student_name_setter(self, student_name):
+		logger.debug(f"{self.hook_id} - Setting student name")
 		self.student_name = student_name
 
 	def connections_setter(self, connections):
+		logger.debug(f"{self.hook_id} - Setting connections")
 		self.connections = connections
 
 	def student_data_from_mail_setter(self):
-
+		logger.debug(f"{self.hook_id} - Setting student name and slack id")
 		details = (StudentSlackIDsModel
 		           .query
 		           .with_entities(StudentSlackIDsModel.student_name, StudentSlackIDsModel.slack_id)
@@ -133,7 +132,7 @@ class MatchMaker:
 			logger.debug(f"connections picked randomly:{self.possible_connection_for_a_match}")
 			return None
 
-		self.possible_connection_for_a_match = possible_connections
+		self.possible_connection_for_a_match = list(possible_connections['poc_name'].unique())
 
 	def create_poc_to_slack_id_mapping(self):
 		logger.debug(f"START")
@@ -141,7 +140,7 @@ class MatchMaker:
 		var = (POCSlackIDsModel
 		       .query
 		       .with_entities(POCSlackIDsModel.poc_name, POCSlackIDsModel.slack_id)
-		       .filter(POCSlackIDsModel.poc_name.in_(list(self.possible_connection_for_a_match['poc_name'])))
+		       .filter(POCSlackIDsModel.poc_name.in_(self.possible_connection_for_a_match))
 		       .all()
 		       )
 		self.poc_to_slack_id_mapping = dict(var)
