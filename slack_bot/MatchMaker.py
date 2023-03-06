@@ -129,7 +129,7 @@ class MatchMaker:
 
 		if possible_connections['poc_name'].nunique() > 3:
 			# randomize the number of pocs that are getting matched
-			self.possible_connection_for_a_match = random.sample(possible_connections['poc_name'].unique(), k=3)
+			self.possible_connection_for_a_match = random.sample(list(possible_connections['poc_name'].unique()), k=3)
 			logger.debug(f"connections picked randomly:{self.possible_connection_for_a_match}")
 			return None
 
