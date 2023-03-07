@@ -94,7 +94,7 @@ class WebHookCatcher(MethodView):
 			abort(400, "company/Hook ID required is required")
 
 		self.commit_webhook_from_huntr(request_data)
-		self._is_email_authorized(email_, hook_id)
+		self._is_email_authorized(request_data, hook_id)
 		self.commit_communication_from_huntr(request_data)
 
 		connections = self._get_connection_in_company(company, hook_id)
