@@ -179,7 +179,6 @@ class MatchMaker:
 			                                              text="Help our students find the best match!",
 			                                              blocks=temp_blocks['blocks']
 			                                              )
-			logger.critical(f"response: {response}")
 
 			self.communications_table_committer(response.get('ts'), "MSG_TO_POC", message_type,
 			                                    poc_name=poc,
@@ -239,12 +238,14 @@ class MatchMaker:
 			                   f"\n\nIn the meanwhile, start tailoring your resume to the position" \
 			                   f" - see what matters most and make sure it stands out."
 
+		else:
+			logger.warning(f"{self.hook_id} - NOT YET IMPLEMENTED: message_type={message_type}")
+
 	def define_and_send_slack_msg_for_student(self, message_type, *args):
 		if self.student_slack_id is None:
 			self.student_data_from_mail_setter()
 		self.define_slack_msg_for_student(message_type)
-		logger.debug(f"self.student_slack_id: {self.student_slack_id}")
-		logger.debug(f"self.student_msg: {self.student_msg}")
+
 		if message_type in ["NO_CONNECTIONS", "CHECKING_CONNECTIONS_WITH_POCS"]:
 			resp = self.slack_client.chat_postMessage(text=self.student_msg,
 			                                          channel=self.student_slack_id)
@@ -253,7 +254,6 @@ class MatchMaker:
 
 		if message_type in ("HAVE_CONNECTIONS", ):
 			self.student_thread_ts_getter()
-			logger.critical(self.student_thread_ts)
 			self.slack_client.chat_postMessage(text=self.student_msg,
 			                                   channel=self.student_slack_id,
 			                                   thread_ts=self.thread_ts)
@@ -263,17 +263,17 @@ class MatchMaker:
 
 		if message_type in ("PASS", ):
 			self.student_thread_ts_getter()
-			logger.critical("Connection was passed - not proceeding")
+
 
 		return self.student_msg
 
 	def student_thread_ts_getter(self):
-		logger.debug(f"getting thread_ts for student: {self.student_slack_id} and hook_id: {self.hook_id}")
+		logger.debug(f"{self.hook_id} - getting thread_ts for student: {self.student_slack_id}")
 		self.thread_ts = (CommunicationsModel.
 		                  query.
 		                  with_entities(CommunicationsModel.thread_ts).
 		                  filter(CommunicationsModel.event == "MSG_TO_STUDENT",
 		                         CommunicationsModel.hook_id == self.hook_id).
 		                  first())[0]
-		logger.debug(f"got thread_ts: {self.thread_ts}")
+		logger.debug(f"{self.hook_id} - got thread_ts: {self.thread_ts}")
 		return self.thread_ts
