@@ -32,7 +32,7 @@ def parse_webhook(data_):
 
 # Webhooks
 def _get_member(data: Dict[str, Any]) -> Dict[str, Any]:
-	logger.degub(f'{data.get("id")} - get member')
+	logger.debug(f'{data.get("id")} - get member')
 	member = data.get("ownerMember", {})
 
 	try:
@@ -52,7 +52,7 @@ def _get_member(data: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def _get_job(data: Dict[str, Any]) -> Dict[str, Any]:
-	logger.degub(f'{data.get("id")} - get job info')
+	logger.debug(f'{data.get("id")} - get job info')
 	job = data.get("job", {})
 	description = job.get("htmlDescription", "")
 	if len(description) > 0:
