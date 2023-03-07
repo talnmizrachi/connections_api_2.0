@@ -22,7 +22,7 @@ blueprint = Blueprint("slack_events", __name__, description="slack events parser
 
 def create_text_for_poc(company, approved_connection, job_title, link_to_cv):
 	txt = f"""Hey, Here is the CV for the *{job_title[0]}* position in *{company}*, for your connection *{approved_connection}*
-<{link_to_cv}|CV>, Please update us if you forwarded this CV to your connections (so that we can let the student know 
+<{link_to_cv}|The student's CV>, Please update us if you forwarded this CV to your connections (so that we can let the student know 
 it's ok."""
 	return txt
 
@@ -35,6 +35,7 @@ def send_msg_to_sxm(client, student, company, poc_name):
 	for manager, slack_id in managers.items():
 		text = f"<@{student}> sent their resumes to <@{poc_name}> that knows someone at {company} on {datetime.now().strftime('%Y-%m-%d %H:%M')}"
 		client.chat_postMessage(text=text, channel=slack_id)
+
 
 def interim_slack_handler(file_id, user_id, file_token):
 	client = WebClient(token=os.getenv('SLACK_OAUTH_TOKEN'))
