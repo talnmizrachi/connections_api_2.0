@@ -21,6 +21,13 @@ blueprint = Blueprint("webhooks", __name__, description="webhooks parser")
 logger.debug("Webhook blueprint loaded")
 
 
+def no_connections_process(matchmaker_: MatchMaker,):
+	matchmaker_.define_and_send_slack_msg_for_student(message_type="NO_CONNECTIONS")
+
+	logger.debug(f"{matchmaker_.hook_id} - Company {matchmaker_.company} not found in connections db")
+	abort(400, message=f"Company {matchmaker_.company} not found in connections db")
+
+
 @blueprint.route("/webhooks/")
 class WebHookCatcher(MethodView):
 
@@ -56,8 +63,8 @@ class WebHookCatcher(MethodView):
 			logger.debug(f"{hook_id} - Student {request_data_['full_name'].capitalize()} ({email_}) is not authorized")
 			abort(400, message=f"Student {request_data_['full_name'].capitalize()} ({email_}) is not authorized")
 
-	def commit_communication_from_huntr(self, request_data):
-		logger.debug(f"commit_communication_from_huntr: {request_data}")
+	def commit_communication_from_huntr(self, request_data, hook_id):
+		logger.debug(f"{hook_id} - commit_communication_from_huntr: {request_data}")
 		first_communication = dict(thread_ts=None,
 		                           hook_id=request_data.get("hook_id"),
 		                           event="MSG_FROM_HUNTR",
@@ -66,13 +73,13 @@ class WebHookCatcher(MethodView):
 		                           full_name=request_data.get("full_name"),
 		                           student_email=request_data.get("email"),
 		                           )
-		committing_function(CommunicationsModel(**first_communication))
+		committing_function(CommunicationsModel(**first_communication), hook_id)
 
 	@staticmethod
 	def commit_webhook_from_huntr(request_data):
 		logger.debug(f"{request_data.get('hook_id')} - committing webhook from huntr")
 		webhook = WebhooksModel(**request_data)
-		committing_function(what_to_commit=webhook)
+		committing_function(what_to_commit=webhook, hook_id=request_data.get("hook_id"))
 
 	def post(self):
 		logger.debug(f"Process start")
@@ -95,7 +102,7 @@ class WebHookCatcher(MethodView):
 
 		self.commit_webhook_from_huntr(request_data)
 		self._is_email_authorized(request_data, hook_id)
-		self.commit_communication_from_huntr(request_data)
+		self.commit_communication_from_huntr(request_data, hook_id)
 
 		connections = self._get_connection_in_company(company, hook_id)
 
@@ -105,12 +112,7 @@ class WebHookCatcher(MethodView):
 		matchmaker.connections_setter(connections=connections)
 
 		if len(connections) == 0:
-			matchmaker.define_and_send_slack_msg_for_student(message_type="NO_CONNECTIONS")
-
-			logger.debug(f"Company {company} not found in connections db")
-			abort(400, message=f"Company {company} not found in connections db")
-
-		logger.debug(f"connection_model:\t{type(connections[0])},{connections[0:5]}")
+			no_connections_process(matchmaker)
 
 		matchmaker.define_and_send_slack_msg_for_student(message_type='CHECKING_CONNECTIONS_WITH_POCS')
 		matchmaker.define_and_send_slack_msg_for_poc(job_url=job_url, email=email_,
