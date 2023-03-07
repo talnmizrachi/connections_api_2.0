@@ -48,6 +48,7 @@ class MatchMaker:
 		logger.debug(f"{self.hook_id} - Initializing MatchMaker")
 
 	def connection_table_status_when_conn_is_rejected(self, contact_name, poc_name):
+		logger.debug(f"{self.hook_id} - updating Connection table status when conn is rejected")
 
 		connection = (ConnectionModel.
 		              query.
@@ -194,6 +195,8 @@ class MatchMaker:
 
 		:return:
 		"""
+		logger.debug(f"{self.hook_id} - Building slack msg for poc (message_type={message_type})")
+
 		if self.student_slack_id is None:
 			self.student_data_from_mail_setter()
 
@@ -202,10 +205,11 @@ class MatchMaker:
 			self.send_msgs_to_pocs_to_check_if_connections_are_real(job_url=job_url, email=email,
 			                                                        message_type=message_type)
 
-		elif message_type == 'ASTRID_TO_POC':
+		elif message_type == 'ASTRID_FORWARDED_TO_POC':
+			# Right now, not needed - sending it inside the code
 			...
 		else:
-			logger.error("NOT YET IMPLEMENTED")
+			logger.warning(f"{self.hook_id} - NOT YET IMPLEMENTED")
 
 	def define_slack_msg_for_student(self, message_type):
 		"""
@@ -219,7 +223,7 @@ class MatchMaker:
 		if self.possible_connection_for_a_match is None:
 			self.possible_connection_for_a_match_setter()
 
-		if message_type == "HAVE_CONNECTIONS":
+		if message_type == "CONNECTION_CONFIRMED":
 			self.student_msg = f"Hey {self.student_name}! We have a connection to *{self.company}* for you!, please " \
 			                   f"send me you TAILORED resume me (just upload the file in this thread)"
 
@@ -242,6 +246,8 @@ class MatchMaker:
 			logger.warning(f"{self.hook_id} - NOT YET IMPLEMENTED: message_type={message_type}")
 
 	def define_and_send_slack_msg_for_student(self, message_type, *args):
+		logger.debug(f"{self.hook_id} - defining and sending slack msg for student (message_type={message_type})")
+
 		if self.student_slack_id is None:
 			self.student_data_from_mail_setter()
 		self.define_slack_msg_for_student(message_type)
