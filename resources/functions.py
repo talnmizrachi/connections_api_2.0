@@ -68,12 +68,12 @@ def _get_job(data: Dict[str, Any]) -> Dict[str, Any]:
 	}
 
 
-def committing_function(what_to_commit):
+def committing_function(what_to_commit, hook_id=None):
 	try:
-		logger.debug(f"what_to_commit:\t{what_to_commit}")
+		logger.debug(f"{hook_id} - what_to_commit:\t{what_to_commit}")
 		db.session.add(what_to_commit)
 		db.session.commit()
 	except SQLAlchemyError as e:
 		db.session.rollback()
-		logger.error(f"SQLAlchemyError - {e}")
+		logger.error(f"{hook_id} - SQLAlchemyError - {e}")
 		abort(500, str(e))
