@@ -25,18 +25,19 @@ def request_parser(request_):
 	return payload_json, response_time
 
 
-def payload_parser(payload_json):
+def payload_parser_for_block_actions(payload_json):
 	logger.info(f"payload_json:\n{payload_json}")
 
 	if payload_json['type'] == 'block_actions':
 		payload_dict_ = json.loads(payload_json['actions'][0]['value'].replace("+", " "))
-
+		logger.debug(f"{payload_dict_['hook_id']}")
 		msg_ts_ = payload_json['container']['message_ts']
 		date_ = datetime.fromtimestamp(float(msg_ts_))
 
 		return payload_dict_, date_, msg_ts_
 
 	if payload_json['type'] == 'interactive_message':
+		logger.critical(f"Payload type is interactive_message - this is the source of the error")
 		action_ = payload_json['actions']
 		msg_ts_ = payload_json['message_ts']
 		slack_id_ = payload_json['user']['id']
@@ -100,7 +101,7 @@ class Connection(MethodView):
 		"""
 
 		payload_json, response_time = request_parser(request)
-		payload_dict, date, msg_ts = payload_parser(payload_json)
+		payload_dict, date, msg_ts = payload_parser_for_block_actions(payload_json)
 		msg_type = change_response_to_poc(payload_json, payload_dict)
 
 		matchmaker = MatchMaker(payload_dict['hook_id'], payload_dict['company_name'], payload_dict['student_mail'], )
@@ -117,70 +118,10 @@ class Connection(MethodView):
 
 
 		# Left to do
-		# update false connections
 
-		# move resume to POC + button
+		# move resume to POC
+		# Add button for I applied
 		#  # send a reminder to the poc
 		# once button is clicked, send the student a message
 
 		return payload_json, 200
-
-#
-# if contact_status=="-1":
-#     msg_type = "CONNECTION_NOT_REAL"
-# elif contact_status=="1":
-#     msg_type = "CONNECTION_CONFIRMED"
-# else:
-#     msg_type = "CONNECTION_PASSED"
-#
-# commit_response_to_table(event=StaticEvents.MSG_FROM_POC,
-#                          message_type=msg_type,
-#                          poc=poc_name,
-#                          hook_id=hook_id,
-#                          msg_ts=msg_ts,
-#                          company=company, slack_id=slack_id, email=None,
-#                          no_of_pocs=0)
-#
-# tan_dict = {"-1": False, "1": True}
-#
-# connection = BaseConnectionModel.query.filter_by(contact_name=contact_name, poc_name=poc_name).first()
-# connection.is_true_connection = tan_dict.get(contact_status)
-# connection.message_ts = date
-# connection.response_date = response_time
-#
-# try:
-#     db.session.commit()
-# except SQLAlchemyError as e:
-#     logging.error(e)
-#     db.session.rollback()
-#
-# if contact_status == "1":
-#     # The connection is real
-#     # todo - delete the other requests to the other POCs
-#     communication_with_students = (CommunicationsModel
-#                                    .query
-#                                    .filter(CommunicationsModel.hook_id == hook_id,
-#                                            CommunicationsModel.event == 'MSG_TO_STUDENT')
-#                                    .first()
-#                                    )
-#     logging.info(f"time:\n{datetime.datetime.now()}")
-#     logging.info(f"communication_with_students:\n{communication_with_students}")
-#     thread_ts_to_students = communication_with_students.thread_ts
-#
-#     second_matchmaker = MatchMaker(hook_id,
-#                                    student={"student_name": student_name,
-#                                             "owner_mail": student_mail},
-#                                    company=company, level=2)
-#     logging.info(f"time:\n{datetime.datetime.now()}")
-#     logging.info(f"second_matchmaker:\n{second_matchmaker}")
-#
-#     define_time = datetime.datetime.now()
-#     second_matchmaker.define_student_msg(message="HAVE_CONNECTIONS")
-#     logging.info(f"second_matchmaker.student_msg:\n{second_matchmaker.student_msg}")
-#
-#     second_matchmaker.send_msg_to_student(thread_ts=thread_ts_to_students)
-#     logging.info(f"sending to student time:\n{datetime.datetime.now() - define_time}")
-#
-#     # second_matchmaker.send_msg_to_anisa(company, poc_name)
-#
-# return contact_status
