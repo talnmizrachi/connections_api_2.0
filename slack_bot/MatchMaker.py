@@ -1,5 +1,4 @@
 import os
-import logging
 from datetime import datetime
 
 from flask import abort
@@ -46,7 +45,7 @@ class MatchMaker:
 		self.poc_slack_msgs_dict = {}
 		self.student_msg = ""
 
-		logging.debug(f"Initializing MatchMaker with hook_id: {hook_id}, company: {company}")
+		logger.debug(f"{self.hook_id} - Initializing MatchMaker")
 
 	def connection_table_status_when_conn_is_rejected(self, contact_name, poc_name):
 
@@ -149,9 +148,9 @@ class MatchMaker:
 
 	def send_msgs_to_pocs_to_check_if_connections_are_real(self, job_url, email, message_type):
 
-		logging.critical(f"creating poc_to_slack_id_mapping")
+		logger.debug(f"{self.hook_id} - creating poc_to_slack_id_mapping")
 		self.create_poc_to_slack_id_mapping()
-		logging.critical(f"creating poc_to_slack_id_mapping - {self.poc_to_slack_id_mapping}")
+
 
 		pocs_dict = {}
 

@@ -25,7 +25,8 @@ logger.debug("Webhook blueprint loaded")
 class WebHookCatcher(MethodView):
 
 	@staticmethod
-	def _get_connection_in_company(company_):
+	def _get_connection_in_company(company_, hook_id):
+		logger.debug(f"{hook_id} - Getting connection from company")
 		# check if company is in connections db
 		connections = (ConnectionModel
 		               .query
@@ -37,7 +38,10 @@ class WebHookCatcher(MethodView):
 		return connections
 
 	@staticmethod
-	def _is_email_authorized(email_):
+	def _is_email_authorized(request_data_, hook_id):
+
+		email_ = request_data_.get("email")
+		logger.debug(f"{hook_id} Checking if email {email_} is authorized")
 		# check if company is in connections db
 		slack_ids = (StudentSlackIDsModel
 		             .query
@@ -48,7 +52,9 @@ class WebHookCatcher(MethodView):
 		             .first()
 		             )
 
-		return slack_ids
+		if slack_ids is None:
+			logger.debug(f"{hook_id} - Student {request_data_['full_name'].capitalize()} ({email_}) is not authorized")
+			abort(400, message=f"Student {request_data_['full_name'].capitalize()} ({email_}) is not authorized")
 
 	def commit_communication_from_huntr(self, request_data):
 		logger.debug(f"commit_communication_from_huntr: {request_data}")
@@ -64,11 +70,12 @@ class WebHookCatcher(MethodView):
 
 	@staticmethod
 	def commit_webhook_from_huntr(request_data):
+		logger.debug(f"{request_data.get('hook_id')} - committing webhook from huntr")
 		webhook = WebhooksModel(**request_data)
 		committing_function(what_to_commit=webhook)
 
 	def post(self):
-
+		logger.debug(f"Process start")
 		data_ = request.get_json()
 
 		if data_.get("actionType") == "TEST" and data_.get("eventType") == "TEST":
@@ -81,23 +88,18 @@ class WebHookCatcher(MethodView):
 		email_ = request_data.get("email")
 		job_url = request_data.get("job_url")
 
+		logger.debug(f"{hook_id} - checking if company is None")
 		if company is None or hook_id is None:
 			logger.critical(f"company is {company}\nHook_id is {hook_id}")
 			abort(400, "company/Hook ID required is required")
 
-		logger.debug(f"request_data: {request_data}")
 		self.commit_webhook_from_huntr(request_data)
-
-		student_data = self._is_email_authorized(email_)
-		if student_data is None:
-			logger.debug(f"Student {request_data['full_name'].capitalize()} ({email_}) is not authorized")
-			abort(400, message=f"Student {request_data['full_name'].capitalize()} ({email_}) is not authorized")
-
+		self._is_email_authorized(email_, hook_id)
 		self.commit_communication_from_huntr(request_data)
 
-		connections = self._get_connection_in_company(company)
-		logger.debug(f"dict(connections):\t{dict(connections)}")
+		connections = self._get_connection_in_company(company, hook_id)
 
+		logger.debug(f"{hook_id} - initiating Matchmaker")
 		matchmaker = MatchMaker(hook_id=hook_id, company=company, student_mail=email_)
 		matchmaker.student_name_setter(student_name=request_data.get("full_name"))
 		matchmaker.connections_setter(connections=connections)
@@ -115,7 +117,7 @@ class WebHookCatcher(MethodView):
 		                                             message_type="CHECKING_STATE_OF_CONNECTIONS")
 
 
-		return parse_webhook(data_)
+		return request_data
 
 
 if __name__ == '__main__':
