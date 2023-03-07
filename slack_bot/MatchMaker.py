@@ -155,7 +155,7 @@ class MatchMaker:
 
 		pocs_dict = {}
 
-		for poc in set(self.possible_connection_for_a_match):
+		for poc in self.possible_connection_for_a_match['poc_name'].unique():
 			logger.debug(f"Building block for poc: {poc}")
 			temp = (self.possible_connection_for_a_match[
 				        (self.possible_connection_for_a_match['poc_name'] == poc)
