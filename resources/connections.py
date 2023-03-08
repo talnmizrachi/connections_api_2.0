@@ -1,13 +1,8 @@
-from cmath import e
-
 from flask import request
 from flask_smorest import Blueprint, abort
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
-
 from db import db
-
 from models.connections import ConnectionModel
-from resources.functions import _get_member, _get_job
 from flask.views import MethodView
 from cross_functions.LoggingGenerator import Logger
 import os
