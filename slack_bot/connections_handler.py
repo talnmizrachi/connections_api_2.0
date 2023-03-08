@@ -3,6 +3,8 @@ import requests
 from datetime import datetime
 from flask.views import MethodView
 from flask import request
+from slack_sdk import WebClient
+
 from cross_functions.LoggingGenerator import Logger
 import os
 from flask_smorest import Blueprint, abort
@@ -111,6 +113,19 @@ class Connection(MethodView):
 		                                          approved_conn=payload_dict['connection_name'])
 		# Let student know that they should send a resume to the poc
 		matchmaker.define_and_send_slack_msg_for_student(msg_type, payload_dict['poc_name'], payload_dict['slack_id'])
+
+		if msg_type == 'CONNECTION_CONFIRMED':
+			def send_msg_to_sxm(student, company, poc_name):
+				client = WebClient(token=os.getenv('SLACK_OAUTH_TOKEN'))
+				managers = {"tal": 'C04MA139GLA',
+				            "anisa_": "U049VQ962ER",
+				            "ori_": "U030GUZ79NX"
+				            }
+				for manager, slack_id in managers.items():
+					text = f"<@{poc_name}> confirmed that they know someone at {company} on {datetime.now().strftime('%Y-%m-%d %H:%M')} (for <@{student}>) Please check that the student saw this message (+if it was sent)"
+					client.chat_postMessage(text=text, channel=slack_id)
+
+			send_msg_to_sxm(payload_dict['slack_id'], payload_dict['company_name'],payload_dict['poc_name'] )
 
 		if payload_dict['conn_status'] == '-1':
 			matchmaker.connection_table_status_when_conn_is_rejected(payload_dict['connection_name'],
