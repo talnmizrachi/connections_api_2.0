@@ -258,12 +258,12 @@ class MatchMaker:
 			self.student_main_thread = resp.get('ts')
 			self.communications_table_committer(self.student_main_thread, "MSG_TO_STUDENT", message_type)
 
-		if message_type in ("HAVE_CONNECTIONS", ):
+		if message_type in ["HAVE_CONNECTIONS", 'CONNECTION_CONFIRMED']:
 			self.student_thread_ts_getter()
 			self.slack_client.chat_postMessage(text=self.student_msg,
 			                                   channel=self.student_slack_id,
 			                                   thread_ts=self.thread_ts)
-			self.communications_table_committer(self.student_main_thread, "MSG_TO_STUDENT", message_type,
+			self.communications_table_committer(self.student_main_thread, "MSG_TO_STUDENT", "REQUEST_FOR_CV",
 			                                    poc_name=args[0],
 			                                    poc_slack_id=args[1])
 
