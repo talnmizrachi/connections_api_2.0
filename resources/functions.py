@@ -25,6 +25,7 @@ def parse_webhook(data_):
 		"email": member.get("email"),
 		"job_title": job.get("title"),
 		"job_url": job.get("url"),
+		"job_id": job.get("id"),
 		"job_description": job.get("description"),
 		"company": company,
 	}
