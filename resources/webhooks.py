@@ -67,6 +67,7 @@ class WebHookCatcher(MethodView):
 		logger.debug(f"{hook_id} - commit_communication_from_huntr: {request_data}")
 		first_communication = dict(thread_ts=None,
 		                           hook_id=request_data.get("hook_id"),
+		                           job_id=request_data.get("job", {}).get("id"),
 		                           event="MSG_FROM_HUNTR",
 		                           message_type="INITIATION",
 		                           company=request_data.get("company"),
