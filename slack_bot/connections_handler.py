@@ -117,7 +117,7 @@ class Connection(MethodView):
 		if msg_type == 'CONNECTION_CONFIRMED':
 			def send_msg_to_sxm(student, company, poc_name):
 				client = WebClient(token=os.getenv('SLACK_OAUTH_TOKEN'))
-				managers = {"tal": 'C04MA139GLA',
+				managers = {"tal": 'U02SC4T1EBF',
 				            "anisa_": "U049VQ962ER",
 				            "ori_": "U030GUZ79NX"
 				            }
