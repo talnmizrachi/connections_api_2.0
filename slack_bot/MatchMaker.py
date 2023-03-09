@@ -71,13 +71,14 @@ class MatchMaker:
 
 	def communications_table_committer(self, thread_ts, event, message_type, cv_link = None,
 	                                   file_name = None, poc_name = None, poc_slack_id = None,
-	                                   slack_file_token = None, approved_conn = None):
+	                                   slack_file_token = None, approved_conn = None, job_id = None):
 		logger.debug(f"{self.hook_id} - Building Commit communications from MatchMaker")
 		if self.student_slack_id is None:
 			self.student_data_from_mail_setter()
 
 		columns = {
 			"hook_id": self.hook_id,
+			"job_id": job_id,
 			'thread_ts': thread_ts,
 			'event': event,
 			'message_type': message_type,
