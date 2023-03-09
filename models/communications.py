@@ -12,6 +12,7 @@ class CommunicationsModel(db.Model):
 	hook_id = db.Column(db.String, db.ForeignKey('webhooks.hook_id'), unique=False, nullable=False)
 	webhooks = db.relationship('WebhooksModel', back_populates='communications')
 
+	job_id = db.Column(db.String, nullable=True)
 	thread_ts = db.Column(db.String)
 	event = db.Column(db.String, nullable=False)
 	message_type = db.Column(db.String, nullable=False)
