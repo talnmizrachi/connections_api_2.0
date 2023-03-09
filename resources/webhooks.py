@@ -79,6 +79,7 @@ class WebHookCatcher(MethodView):
 	@staticmethod
 	def commit_webhook_from_huntr(request_data):
 		logger.debug(f"{request_data.get('hook_id')} - committing webhook from huntr")
+		del request_data["job_id"]
 		webhook = WebhooksModel(**request_data)
 		committing_function(what_to_commit=webhook, hook_id=request_data.get("hook_id"))
 
