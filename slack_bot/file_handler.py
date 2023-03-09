@@ -28,7 +28,7 @@ it's ok."""
 
 
 def send_msg_to_sxm(client, student, company, poc_name):
-	managers = {"tal": 'C04MA139GLA',
+	managers = {"tal": 'U02SC4T1EBF',
 	            "anisa_": "U049VQ962ER",
 	            "ori_": "U030GUZ79NX"
 	            }
@@ -67,7 +67,7 @@ def interim_slack_handler(file_id, user_id, file_token):
 	                                         message_type="STUDENT_SENT_CV", company=company,
 	                                         student_email=student_mail, full_name=full_name, cv_link=file_link,
 	                                         file_name=file_name, student_slack_id=user_id, slack_file_token=file_token,
-	                                         poc_name=poc_name, poc_slack_id=poc_slack_id)
+	                                         poc_name=poc_name, poc_slack_id=poc_slack_id, job_id=None)
 	try:
 		session_.add(new_communications)
 		session_.commit()
@@ -94,8 +94,7 @@ def interim_slack_handler(file_id, user_id, file_token):
 	                                         student_email=student_mail, full_name=full_name, cv_link=file_link,
 	                                         file_name=file_name, student_slack_id=user_id, slack_file_token=file_token,
 	                                         poc_name=poc_name, poc_slack_id=poc_slack_id,
-	                                         approved_connection_name=connection_name)
-
+	                                         approved_connection_name=connection_name, job_id=None)
 	try:
 		session_.add(new_communications)
 		session_.commit()
