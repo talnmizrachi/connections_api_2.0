@@ -125,7 +125,7 @@ class Connection(MethodView):
 					text = f"<@{poc_name}> confirmed that they know someone at {company} on {datetime.now().strftime('%Y-%m-%d %H:%M')} (for <@{student}>) Please check that the student saw this message (+if it was sent)"
 					client.chat_postMessage(text=text, channel=slack_id)
 
-			send_msg_to_sxm(payload_dict['slack_id'], payload_dict['company_name'],payload_dict['poc_name'] )
+			send_msg_to_sxm(payload_dict['student_name'], payload_dict['company_name'], payload_dict['slack_id'] )
 
 		if payload_dict['conn_status'] == '-1':
 			matchmaker.connection_table_status_when_conn_is_rejected(payload_dict['connection_name'],
