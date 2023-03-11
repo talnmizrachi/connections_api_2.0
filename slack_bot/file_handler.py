@@ -54,6 +54,7 @@ def interim_slack_handler(file_id, user_id, file_token):
 	                                             filter_by(student_slack_id=user_id, thread_ts=thread_ts)
 	                                             .first()
 	                                             )
+	logger.debug(f"{hook_id} -Interim Slack Handler")
 	poc_name, poc_slack_id, connection_name = (session_.
 	                                           query(CommunicationsModel).
 	                                           with_entities(CommunicationsModel.poc_name,
@@ -63,12 +64,15 @@ def interim_slack_handler(file_id, user_id, file_token):
 	                                           filter_by(hook_id=hook_id, message_type='CONNECTION_CONFIRMED')
 	                                           .first()
 	                                           )
+	logger.debug(f"{hook_id} - getting information for the poc")
 	new_communications = CommunicationsModel(hook_id=hook_id, thread_ts=thread_ts, event="MSG_FROM_STUDENT",
 	                                         message_type="STUDENT_SENT_CV", company=company,
 	                                         student_email=student_mail, full_name=full_name, cv_link=file_link,
 	                                         file_name=file_name, student_slack_id=user_id, slack_file_token=file_token,
 	                                         poc_name=poc_name, poc_slack_id=poc_slack_id, job_id=None)
+
 	try:
+		logger.debug(f"{hook_id} -Adding the new communication to the database")
 		session_.add(new_communications)
 		session_.commit()
 		logger.debug(f"Added new communication:\t{new_communications}")
@@ -76,6 +80,7 @@ def interim_slack_handler(file_id, user_id, file_token):
 		session_.rollback()
 		logger.error(f"Failed to add new communication:\t{new_communications}")
 		logger.error(e)
+	logger.debug(f"{hook_id} -Getting the job title")
 
 	job_title = (session_.
 	             query(WebhooksModel).
