@@ -1,6 +1,6 @@
 import os
 from datetime import datetime
-
+from sqlalchemy import func
 from flask import abort
 from sqlalchemy.exc import SQLAlchemyError
 from models import POCSlackIDsModel, CommunicationsModel, StudentSlackIDsModel, ConnectionModel
@@ -25,7 +25,7 @@ class MatchMaker:
 		self.hook_id = hook_id
 		self.slack_client = WebClient(token=os.getenv("SLACK_OAUTH_TOKEN"))
 		self.company = company
-		self.student_mail = student_mail
+		self.student_mail = student_mail.lower()
 		self.slack_msg = None
 		self.slack_msg_id = None
 		self.slack_msg_ts = None
@@ -117,7 +117,7 @@ class MatchMaker:
 		details = (StudentSlackIDsModel
 		           .query
 		           .with_entities(StudentSlackIDsModel.student_name, StudentSlackIDsModel.slack_id)
-		           .filter(StudentSlackIDsModel.student_email == self.student_mail)
+		           .filter(func.lower(StudentSlackIDsModel.student_email) == self.student_mail)
 		           .first()
 		           )
 
