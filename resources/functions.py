@@ -12,7 +12,7 @@ logger = Logger(os.path.basename(__file__).split('.')[0]).get_logger()
 
 def parse_webhook(data_):
 	logger.debug(f'{data_.get("id")} - parse_webhook')
-	Logger.debug(f"webook entering:\t {data_}")
+	logger.debug(f"webook entering:\t {data_}")
 	member = _get_member(data_)
 	job = _get_job(data_)
 	company = data_.get("employer", {}).get("name")
