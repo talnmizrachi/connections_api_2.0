@@ -18,11 +18,12 @@ load_dotenv()
 
 class MatchMaker:
 
-	def __init__(self, hook_id, company, student_mail):
+	def __init__(self, hook_id, company, student_mail, job_id = None):
 		self.student_main_thread = None
 		self.student_thread_ts = None
 		self.poc_to_slack_id_mapping = None
 		self.hook_id = hook_id
+		self.job_id = job_id
 		self.slack_client = WebClient(token=os.getenv("SLACK_OAUTH_TOKEN"))
 		self.company = company
 		self.student_mail = student_mail.lower()
@@ -71,14 +72,17 @@ class MatchMaker:
 
 	def communications_table_committer(self, thread_ts, event, message_type, cv_link = None,
 	                                   file_name = None, poc_name = None, poc_slack_id = None,
-	                                   slack_file_token = None, approved_conn = None, job_id = None):
+	                                   slack_file_token = None, approved_conn = None):
 		logger.debug(f"{self.hook_id} - Building Commit communications from MatchMaker")
 		if self.student_slack_id is None:
 			self.student_data_from_mail_setter()
 
+		if self.job_id is None:
+			self.job_id_setter()
+
 		columns = {
 			"hook_id": self.hook_id,
-			"job_id": job_id,
+			"job_id": self.job_id,
 			'thread_ts': thread_ts,
 			'event': event,
 			'message_type': message_type,
@@ -124,13 +128,28 @@ class MatchMaker:
 		self.student_name = details[0]
 		self.student_slack_id = details[1]
 
+	def job_id_setter(self):
+		logger.debug(f"{self.hook_id} - Getting Job id")
+		try:
+			details = (CommunicationsModel
+			           .query
+			           .with_entities(CommunicationsModel.hook_id, CommunicationsModel.job_id)
+			           .filter(CommunicationsModel.hook_id == self.hook_id)
+			           .first()
+			           )
+			self.job_id = details[1]
+		except Exception as e:
+			self.job_id = None
+			logger.error(f"Exception in setting a job_id - {e}")
+
 	def possible_connection_for_a_match_setter(self):
 		possible_connections = pd.DataFrame(self.connections, columns=["contact_name", "poc_name"])
 
 		if possible_connections['poc_name'].nunique() > 3:
 			# randomize the number of pocs that are getting matched
 			names = random.sample(list(possible_connections['poc_name'].unique()), k=3)
-			self.possible_connection_for_a_match = possible_connections[possible_connections['poc_name'].isin(names)].copy()
+			self.possible_connection_for_a_match = possible_connections[
+				possible_connections['poc_name'].isin(names)].copy()
 			logger.debug(f"connections picked randomly:{self.possible_connection_for_a_match}")
 			return None
 
@@ -152,7 +171,6 @@ class MatchMaker:
 
 		logger.debug(f"{self.hook_id} - creating poc_to_slack_id_mapping")
 		self.create_poc_to_slack_id_mapping()
-
 
 		pocs_dict = {}
 
@@ -184,7 +202,7 @@ class MatchMaker:
 
 			self.communications_table_committer(response.get('ts'), "MSG_TO_POC", message_type,
 			                                    poc_name=poc,
-			                                    poc_slack_id=slack_id)
+			                                    poc_slack_id=slack_id, job_id=self.job_id)
 
 	def define_and_send_slack_msg_for_poc(self, message_type, job_url, email):
 		"""
@@ -257,7 +275,8 @@ class MatchMaker:
 			resp = self.slack_client.chat_postMessage(text=self.student_msg,
 			                                          channel=self.student_slack_id)
 			self.student_main_thread = resp.get('ts')
-			self.communications_table_committer(self.student_main_thread, "MSG_TO_STUDENT", message_type, args[0])
+			self.communications_table_committer(thread_ts=self.student_main_thread, event="MSG_TO_STUDENT",
+			                                    message_type=message_type)
 
 		if message_type in ["HAVE_CONNECTIONS", 'CONNECTION_CONFIRMED']:
 			self.student_thread_ts_getter()
@@ -268,9 +287,8 @@ class MatchMaker:
 			                                    poc_name=args[0],
 			                                    poc_slack_id=args[1])
 
-		if message_type in ("PASS", ):
+		if message_type in ("PASS",):
 			self.student_thread_ts_getter()
-
 
 		return self.student_msg
 
