@@ -202,7 +202,7 @@ class MatchMaker:
 
 			self.communications_table_committer(response.get('ts'), "MSG_TO_POC", message_type,
 			                                    poc_name=poc,
-			                                    poc_slack_id=slack_id, job_id=self.job_id)
+			                                    poc_slack_id=slack_id)
 
 	def define_and_send_slack_msg_for_poc(self, message_type, job_url, email):
 		"""
