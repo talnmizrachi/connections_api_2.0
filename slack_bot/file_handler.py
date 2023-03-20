@@ -33,7 +33,7 @@ def send_msg_to_sxm(client, student, company, poc_name):
 	            "ori_": "U030GUZ79NX"
 	            }
 	for manager, slack_id in managers.items():
-		text = f"<@{student}> sent their resumes to <@{poc_name}> that knows someone at {company} on {datetime.now().strftime('%Y-%m-%d %H:%M')}"
+		text = f"<@{student}> sent their resumes to {poc_name} that knows someone at {company} on {datetime.now().strftime('%Y-%m-%d %H:%M')}"
 		client.chat_postMessage(text=text, channel=slack_id)
 
 
