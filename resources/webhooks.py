@@ -21,8 +21,8 @@ blueprint = Blueprint("webhooks", __name__, description="webhooks parser")
 logger.debug("Webhook blueprint loaded")
 
 
-def no_connections_process(matchmaker_: MatchMaker, job_id):
-	matchmaker_.define_and_send_slack_msg_for_student("NO_CONNECTIONS", job_id)
+def no_connections_process(matchmaker_: MatchMaker):
+	matchmaker_.define_and_send_slack_msg_for_student("NO_CONNECTIONS")
 
 	logger.debug(f"{matchmaker_.hook_id} - Company {matchmaker_.company} not found in connections db")
 	abort(400, message=f"Company {matchmaker_.company} not found in connections db")
@@ -110,14 +110,14 @@ class WebHookCatcher(MethodView):
 		connections = self._get_connection_in_company(company, hook_id)
 
 		logger.debug(f"{hook_id} - initiating Matchmaker")
-		matchmaker = MatchMaker(hook_id=hook_id, company=company, student_mail=email_)
+		matchmaker = MatchMaker(hook_id=hook_id, company=company, student_mail=email_, job_id=job_id)
 		matchmaker.student_name_setter(student_name=request_data.get("full_name"))
 		matchmaker.connections_setter(connections=connections)
 
 		if len(connections) == 0:
-			no_connections_process(matchmaker,job_id)
+			no_connections_process(matchmaker, job_id)
 
-		matchmaker.define_and_send_slack_msg_for_student('CHECKING_CONNECTIONS_WITH_POCS', job_id)
+		matchmaker.define_and_send_slack_msg_for_student('CHECKING_CONNECTIONS_WITH_POCS')
 		matchmaker.define_and_send_slack_msg_for_poc(job_url=job_url, email=email_,
 		                                             message_type="CHECKING_STATE_OF_CONNECTIONS")
 
