@@ -74,6 +74,7 @@ class WebHookCatcher(MethodView):
 		                           full_name=request_data.get("full_name"),
 		                           student_email=request_data.get("email"),
 		                           )
+
 		committing_function(CommunicationsModel(**first_communication), hook_id)
 
 	@staticmethod
@@ -115,7 +116,7 @@ class WebHookCatcher(MethodView):
 		matchmaker.connections_setter(connections=connections)
 
 		if len(connections) == 0:
-			no_connections_process(matchmaker, job_id)
+			no_connections_process(matchmaker)
 
 		matchmaker.define_and_send_slack_msg_for_student('CHECKING_CONNECTIONS_WITH_POCS')
 		matchmaker.define_and_send_slack_msg_for_poc(job_url=job_url, email=email_,
