@@ -66,6 +66,7 @@ def _get_job(data: Dict[str, Any]) -> Dict[str, Any]:
 	return {
 		"title": job.get("title", "").lower(),
 		"url": job.get("url"),
+		'id': job.get("id"),
 		"description": desc
 	}
 
