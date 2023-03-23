@@ -20,8 +20,8 @@ logger = Logger(os.path.basename(__file__).split('.')[0]).get_logger()
 blueprint = Blueprint("slack_events", __name__, description="slack events parser")
 
 
-def create_text_for_poc(company, approved_connection, job_title, link_to_cv):
-	txt = f"""Hey, Here is the CV for the *{job_title[0]}* position in *{company}*, for your connection *{approved_connection}*
+def create_text_for_poc(company, approved_connection, job_title, link_to_cv, link_to_position):
+	txt = f"""Hey, Here is the CV for the *{job_title[0]}* <position|{link_to_position}> in *{company}*, for your connection *{approved_connection}*
 <{link_to_cv}|The student's CV>, Please update us if you forwarded this CV to your connections (so that we can let the student know 
 it's ok."""
 	return txt
@@ -87,15 +87,15 @@ def interim_slack_handler(file_id, user_id, file_token):
 		logger.error(e)
 	logger.debug(f"{hook_id} -Getting the job title")
 
-	job_title = (session_.
+	job_title, job_url = (session_.
 				 query(WebhooksModel).
-				 with_entities(WebhooksModel.job_title).
+				 with_entities(WebhooksModel.job_title, WebhooksModel.job_url).
 				 filter_by(hook_id=hook_id).
 				 first()
 				 )
 
 	client.chat_postMessage(channel=poc_slack_id,
-							text=create_text_for_poc(company, connection_name, job_title, file_link))
+							text=create_text_for_poc(company, connection_name, job_title, file_link, job_url))
 
 	send_msg_to_sxm(client, user_id, company, poc_name)
 
