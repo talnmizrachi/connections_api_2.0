@@ -16,6 +16,7 @@ class WebhooksModel(db.Model):
 	job_title = db.Column(db.String)
 	job_url = db.Column(db.String)
 	job_description = db.Column(db.String)
+	job_id = db.Column(db.String)
 	company = db.Column(db.String, nullable=False)
 
 	communications = db.relationship('CommunicationsModel', back_populates='webhooks', lazy='dynamic')
