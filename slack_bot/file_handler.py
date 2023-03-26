@@ -21,7 +21,7 @@ blueprint = Blueprint("slack_events", __name__, description="slack events parser
 
 
 def create_text_for_poc(company, approved_connection, job_title, link_to_cv, link_to_position):
-	txt = f"""Hey, Here is the CV for the *{job_title[0]}* <position|{link_to_position}> in *{company}*, for your connection *{approved_connection}*
+	txt = f"""Hey, Here is the CV for the *{job_title[0]}* <{link_to_position}|position> in *{company}*, for your connection *{approved_connection}*
 <{link_to_cv}|The student's CV>, Please update us if you forwarded this CV to your connections (so that we can let the student know 
 it's ok."""
 	return txt
