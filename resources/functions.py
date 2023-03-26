@@ -16,7 +16,7 @@ def parse_webhook(data_):
 	member = _get_member(data_)
 	job = _get_job(data_)
 	company = data_.get("employer", {}).get("name")
-
+	logger.debug(f"job from data\t {job}")
 	return {
 		"hook_id": data_.get("id"),
 		"action_type": data_.get("actionType"),
