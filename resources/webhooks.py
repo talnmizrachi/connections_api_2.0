@@ -82,7 +82,6 @@ class WebHookCatcher(MethodView):
 		logger.debug(f"{request_data.get('hook_id')} - committing webhook from huntr")
 
 		this_request_data = request_data.copy()
-		del this_request_data["job_id"]
 		webhook = WebhooksModel(**this_request_data)
 		committing_function(what_to_commit=webhook, hook_id=this_request_data.get("hook_id"))
 
