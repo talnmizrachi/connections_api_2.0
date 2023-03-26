@@ -80,9 +80,11 @@ class WebHookCatcher(MethodView):
 	@staticmethod
 	def commit_webhook_from_huntr(request_data):
 		logger.debug(f"{request_data.get('hook_id')} - committing webhook from huntr")
-		del request_data["job_id"]
-		webhook = WebhooksModel(**request_data)
-		committing_function(what_to_commit=webhook, hook_id=request_data.get("hook_id"))
+
+		this_request_data = request_data.copy()
+		del this_request_data["job_id"]
+		webhook = WebhooksModel(**this_request_data)
+		committing_function(what_to_commit=webhook, hook_id=this_request_data.get("hook_id"))
 
 	def post(self):
 		logger.debug(f"Process start")
@@ -104,9 +106,9 @@ class WebHookCatcher(MethodView):
 			logger.critical(f"company is {company}\nHook_id is {hook_id}")
 			abort(400, "company/Hook ID required is required")
 
+		self.commit_webhook_from_huntr(request_data)
 		self._is_email_authorized(request_data, hook_id)
 		self.commit_communication_from_huntr(request_data, hook_id)
-		self.commit_webhook_from_huntr(request_data)
 
 		connections = self._get_connection_in_company(company, hook_id)
 
