@@ -1,3 +1,5 @@
+import datetime
+
 from flask import request
 from flask_smorest import Blueprint, abort
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
@@ -30,7 +32,7 @@ class JobMove(MethodView):
 		job_mvmnt_dict = {
 			"job_id": job.get("id"),
 			"job_title": job.get("title"),
-			"datetime": data.get('date'),
+			"datetime": datetime.datetime.now(),
 			"action_type": data.get('actionType'),
 			"student_mail": student.get("email"),
 			"full_name": student.get("fullName"),
