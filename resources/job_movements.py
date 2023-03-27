@@ -28,15 +28,15 @@ class JobMove(MethodView):
 		student = data.get("ownerMember")
 
 		job_mvmnt_obj = {
-		"job_id" : job.get("id"),
-		"job_title" : job.get("title"),
-		"datetime" : data.get('date'),
-		"action" : data.get('actionType'),
-		"student_mail" : student.get("email"),
-		"student_full_name" : student.get("fullName"),
-		"company" : data.get("employer", {}).get("name"),
-		"from_list" : data.get("fromList")['name'],
-		"to_list" : data.get("toList")['name'],
+			"job_id": job.get("id"),
+			"job_title": job.get("title"),
+			"datetime": data.get('date'),
+			"action": data.get('actionType'),
+			"student_mail": student.get("email"),
+			"student_full_name": student.get("fullName"),
+			"company": data.get("employer", {}).get("name"),
+			"from_list": data.get("fromList")['name'],
+			"to_list": data.get("toList")['name'],
 		}
 
 		job_mvmnt_obj = HuntrJobMovmentModel(**job_mvmnt_obj)
