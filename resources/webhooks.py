@@ -93,6 +93,10 @@ class WebHookCatcher(MethodView):
 			logger.debug("actionType and eventType are TEST")
 			return {"status": "ok"}
 
+		if data_.get("actionType") != "JOB_CREATED":
+			logger.debug(f"actionType is {data_.get('actionType')}")
+			return {"status": "ok"}
+
 		request_data = parse_webhook(data_)
 		company = request_data.get("company")
 		hook_id = request_data.get("hook_id")
