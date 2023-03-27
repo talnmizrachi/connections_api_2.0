@@ -27,7 +27,7 @@ class JobMove(MethodView):
 		job = data.get("job", {})
 		student = data.get("ownerMember")
 
-		job_mvmnt_obj = {
+		job_mvmnt_dict = {
 			"job_id": job.get("id"),
 			"job_title": job.get("title"),
 			"datetime": data.get('date'),
@@ -39,7 +39,7 @@ class JobMove(MethodView):
 			"to_list": data.get("toList")['name'],
 		}
 
-		job_mvmnt_obj = HuntrJobMovmentModel(**job_mvmnt_obj)
+		job_mvmnt_obj = HuntrJobMovmentModel(**job_mvmnt_dict)
 
 		try:
 			db.session.add(job_mvmnt_obj)
@@ -47,3 +47,6 @@ class JobMove(MethodView):
 		except SQLAlchemyError as e:
 			db.session.rollback()
 			logger.error(e)
+
+
+		return job_mvmnt_dict
