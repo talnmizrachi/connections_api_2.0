@@ -19,7 +19,12 @@ class JobMove(MethodView):
 	# add a new connection
 	def post(self):
 		data = request.get_json()
-		job =  data.get("job", {})
+
+		if data.get("actionType") == "TEST" and data.get("eventType") == "TEST":
+			logger.debug("actionType and eventType are TEST")
+			return {"status": "ok"}
+
+		job = data.get("job", {})
 		student = data.get("ownerMember")
 
 		job_mvmnt_obj = {
