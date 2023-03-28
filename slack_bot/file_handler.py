@@ -87,9 +87,9 @@ def interim_slack_handler(file_id, user_id, file_token):
 		logger.error(e)
 	logger.debug(f"{hook_id} -Getting the job title")
 
-	job_title, job_url = (session_.
+	job_title, job_url, job_id = (session_.
 				 query(WebhooksModel).
-				 with_entities(WebhooksModel.job_title, WebhooksModel.job_url).
+				 with_entities(WebhooksModel.job_title, WebhooksModel.job_url, WebhooksModel.job_id).
 				 filter_by(hook_id=hook_id).
 				 first()
 				 )
@@ -104,7 +104,7 @@ def interim_slack_handler(file_id, user_id, file_token):
 											 student_email=student_mail, full_name=full_name, cv_link=file_link,
 											 file_name=file_name, student_slack_id=user_id, slack_file_token=file_token,
 											 poc_name=poc_name, poc_slack_id=poc_slack_id,
-											 approved_connection_name=connection_name, job_id=None)
+											 approved_connection_name=connection_name, job_id=job_id)
 	try:
 		session_.add(new_communications)
 		session_.commit()
