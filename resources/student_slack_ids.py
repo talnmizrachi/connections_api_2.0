@@ -15,6 +15,7 @@ blueprint = Blueprint("student_slack_ids", __name__, description="actions relate
 
 def send_welcoming_message(slack_id):
     bulbs = ":bulb::bulb::bulb:"
+    attentions = ":attention::attention::attention:"
     opening = f"{bulbs}Sending resumes via connections can be important as it can increase the chances of your resume being " \
               "noticed and lead to more opportunities as compared to submitting your application through " \
               f"a traditional online application process - and that's why I'm here{bulbs}."
@@ -25,6 +26,8 @@ def send_welcoming_message(slack_id):
            "that you got from me about that position." \
            "While I'm looking for a connection that willing to forward your resumes, it's up to you to tailor your " \
            "resume to fit the job description - if you have any questions, feel free to contact me on #astrid-questions-and-bugs channel." \
+           "" \
+           f"{attentions}Important! If I'm not getting back to you within 4 hours - send your tailored resume yourself!{attentions}"
 
     WebClient(token=os.environ.get("SLACK_OAUTH_TOKEN")).chat_postMessage(channel=slack_id, text=f"{opening}\n\n{body}")
 
