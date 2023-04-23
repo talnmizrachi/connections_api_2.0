@@ -48,4 +48,4 @@ class MockCopier(MethodView):
 			db.session.rollback()
 			logger.error(e)
 
-		return mock_int_dict
+		return data
