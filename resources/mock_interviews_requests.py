@@ -20,10 +20,26 @@ class MockSetter(MethodView):
 	# add a new mock request from typeform
 	def post(self):
 		data = request.get_json()
-		logger.debug(data)
-		mock_int_dict = parse_webhook_from_typeform_(data)
 
+		mock_int_dict = parse_webhook_from_typeform_(data)
 		mock_int_obj = MockInterviewRequests(**mock_int_dict)
+		logger.debug(mock_int_dict)
+		
+		try:
+			db.session.add(mock_int_obj)
+			db.session.commit()
+		except SQLAlchemyError as e:
+			db.session.rollback()
+			logger.error(e)
+
+		return mock_int_dict
+
+
+@mock_int_blueprint.route("/copy_mock_interview_from_past_data/")
+class MockCopier(MethodView):
+	def post(self):
+		data = request.get_json()
+		mock_int_obj = MockInterviewRequests(**data)
 
 		try:
 			db.session.add(mock_int_obj)

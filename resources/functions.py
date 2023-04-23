@@ -164,7 +164,6 @@ def parse_webhook_from_typeform_(data_):
 	event_id = data_.get('event_id')
 	form_response = data_.get('form_response', {})
 	logger.debug(f'form_response - {form_response}')
-	print(f'form_response - {form_response}')
 	token = form_response.get('token')
 	submission_time = form_response.get('submitted_at')
 	base_dict = parse_typeform_qa(form_response)
