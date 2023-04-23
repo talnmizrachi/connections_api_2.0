@@ -9,6 +9,7 @@ from resources.connections import connection_blueprint as connection_blueprint
 from resources.poc_slack_ids import poc_slack_id_blueprint as poc_slack_id_blueprint
 from resources.job_movements import job_movement_blueprint as job_movement_blueprint
 from resources.student_slack_ids import blueprint as student_slack_id_blueprint
+from resources.mock_interviews_requests import mock_int_blueprint as mock_interviews_requests_blueprint
 from slack_bot import connections_blueprint_handler
 from slack_bot.file_handler import blueprint as slack_event_blueprint
 from cross_functions.LoggingGenerator import Logger
@@ -49,6 +50,7 @@ def create_app(db_url=None):
     api.register_blueprint(connections_blueprint_handler)
     api.register_blueprint(slack_event_blueprint)
     api.register_blueprint(job_movement_blueprint)
+    api.register_blueprint(mock_interviews_requests_blueprint)
 
     return app
 
