@@ -143,7 +143,7 @@ def parse_typeform_qa(form_response_):
 		value = answer[middle]
 
 		if isinstance(value, dict):
-			value = value['label']
+			value = value[list(value.keys())[0]]
 
 		temp_dict['value'] = value
 		all_answers.append(temp_dict)
