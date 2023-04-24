@@ -1,5 +1,6 @@
 import datetime
 import json
+from dotenv import load_dotenv
 
 import requests
 from flask import request
@@ -16,12 +17,13 @@ from schemas import ConnectionSchema
 logger = Logger(os.path.basename(__file__).split('.')[0]).get_logger()
 mock_int_blueprint = Blueprint("mock_interview_request", __name__, description="mock interview request from typeform")
 logger.debug("Connections blueprint loaded")
-
+load_dotenv()
 
 @mock_int_blueprint.route("/set_mock_interview/")
 class MockSetter(MethodView):
 	# add a new mock request from typeform
 	def post(self):
+		url = os.environ['ZAPIER_WEBHOOK_MAILING']
 		data = request.get_json()
 
 		mock_int_dict = parse_webhook_from_typeform_(data)
@@ -31,6 +33,7 @@ class MockSetter(MethodView):
 		try:
 			db.session.add(mock_int_obj)
 			db.session.commit()
+			requests.post(url, data=json.dumps(mock_int_dict))
 		except SQLAlchemyError as e:
 			db.session.rollback()
 			logger.error(e)
