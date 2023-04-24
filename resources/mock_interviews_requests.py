@@ -1,4 +1,7 @@
 import datetime
+import json
+
+import requests
 from flask import request
 from flask_smorest import Blueprint, abort, response
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
@@ -44,6 +47,10 @@ class MockCopier(MethodView):
 		try:
 			db.session.add(mock_int_obj)
 			db.session.commit()
+			try:
+				requests.post('https://hooks.zapier.com/hooks/catch/13361372/3ul5e2h/', data=json.dumps(data))
+			except Exception as e:
+				logger.error(f"problem with web hood to Zapier {e}")
 		except SQLAlchemyError as e:
 			db.session.rollback()
 			logger.error(e)
