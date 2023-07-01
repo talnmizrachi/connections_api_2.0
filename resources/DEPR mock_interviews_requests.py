@@ -7,7 +7,6 @@ from flask import request
 from flask_smorest import Blueprint, abort, response
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from db import db
-from models import MockInterviewRequests
 from flask.views import MethodView
 from cross_functions.LoggingGenerator import Logger
 import os
