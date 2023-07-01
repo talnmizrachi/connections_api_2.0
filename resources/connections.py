@@ -1,5 +1,6 @@
-from flask import request
+from flask import request, jsonify
 from flask_smorest import Blueprint, abort
+from sqlalchemy import func, or_
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from db import db
 from models.connections import ConnectionModel
@@ -95,3 +96,20 @@ class Connections(MethodView):
 				"message": "connections could not be added"
 			}
 		return abort(405, response)
+
+
+@connection_blueprint.route('/true_connections', methods=['GET'])
+def get_connections():
+	attribute1_val = request.args.get('company_name').lower()
+
+	results = ConnectionModel.query.filter(
+		func.lower(ConnectionModel.company_name) == attribute1_val,
+		or_(ConnectionModel.is_true_connection == True, ConnectionModel.is_true_connection.is_(None))
+	)
+
+	# Create a list of dictionaries (as you can't jsonify a SQLAlchemy object directly)
+	list_results = []
+	for result in results:
+		list_results.append({"POC": result.poc_name, "contact": result.contact_name, "is_true_connection": result.is_true_connection})
+
+	return jsonify(list_results)
